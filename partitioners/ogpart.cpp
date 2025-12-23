@@ -643,8 +643,20 @@ public:
         result.phase2_edge_cut = edge_cut;
         result.replication_factor = replication_factor;
 
-        cout << "FinalVerify: ";
-        cout << fixed << setprecision(2) << "CUTTANA," << dataset_name << "," << (result.is_vertex_balanced ? "VB" : "EB") << "," << ((double)(mx_edge) / ((double)edge_count / part_count)) << "," << (double)(mx) / ((double)vertex_count / part_count) << "," << (int)(result.program_timer.get_total_time() / 1e9) << "," << ((double)edge_cut / edge_count * 100.0) << "," << (sum_rep_fac * 1.0 / (vertex_count * result.part_count)) * 100.0 << endl;
+        // Create metrics output string
+        stringstream metrics_output;
+        metrics_output << fixed << setprecision(2) << "CUTTANA," << dataset_name << "," << (result.is_vertex_balanced ? "VB" : "EB") << "," << ((double)(mx_edge) / ((double)edge_count / part_count)) << "," << (double)(mx) / ((double)vertex_count / part_count) << "," << (int)(result.program_timer.get_total_time() / 1e9) << "," << ((double)edge_cut / edge_count * 100.0) << "," << (sum_rep_fac * 1.0 / (vertex_count * result.part_count)) * 100.0;
+
+        // Print to console
+        cout << "FinalVerify: " << metrics_output.str() << endl;
+
+        // Write to file
+        string metrics_file = "metrics_" + dataset_name + std::to_string(part_count) + "_" + std::to_string(sub_part_count) + ".csv";
+        ofstream metrics_out("partitioned_files/" + metrics_file);
+        metrics_out << "Algorithm,Dataset,BalanceType,EdgeImbalance,VertexImbalance,RuntimeSec,EdgeCutPercent,ReplicationFactorPercent\n";
+        metrics_out << metrics_output.str() << endl;
+        metrics_out.close();
+        cout << "Metrics written to: partitioned_files/" << metrics_file << endl;
     }
 
     void graph_stats()

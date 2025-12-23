@@ -43,3 +43,5 @@ main
 
 # make file targets
 
+input/
+output/

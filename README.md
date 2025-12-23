@@ -101,6 +101,38 @@ To optimize for communication volume you should compile with defining `CV` flag.
 This mode has optimizations for communication volume particularly for synchronous graph analytics. 
 
 
+
+### Docker
+
+Build
+```
+docker build -t cuttana .
+````
+
+Basic partitioning
+```
+docker run --rm cuttana ./ogpart -d examples/emailEnron.txt -p 4 -subp 256 -b 1.05 -vb 1
+```
+
+With own, for examples
+```
+docker run --rm \
+  -v /Users/nikolaimerkel/development/TUB/partitioning/cuttana-partitioner/input:/data \
+  -v /Users/nikolaimerkel/development/TUB/partitioning/cuttana-partitioner/output:/app/partitioned_files \
+  cuttana ./ogpart -d /data/emailEnron.txt -p 4 -subp 256 -b 1.05 -vb 1
+```
+
+Interactive shell
+```
+docker run --rm -it cuttana /bin/bash
+````
+
+Batch experiments
+```
+docker run --rm cuttana bash exp.sh exp.json
+```
+
+
 -----------------------------
 
 The accepted paper can be found [here](https://www.vldb.org/pvldb/vol18/p14-hajidehi.pdf).
