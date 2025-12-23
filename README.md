@@ -146,11 +146,11 @@ docker run --rm cuttana bash exp.sh exp.json
 ```
 
 ### Create a random edgelist - n
-
+```
 docker run --rm -v $(pwd)/input:/data cuttana python3 generate_edgelist.py 1000 5000 -o /data/random_graph_undirec.txt
 docker run --rm -v $(pwd)/input:/data cuttana python3 generate_edgelist.py 1000 5000 --directed -o /data/random_directed.txt
 docker run --rm -v $(pwd)/input:/data cuttana python3 generate_edgelist.py 1000 5000 --zero-degree -o /data/random_zero.txt
-
+```
 
 ### Convert edgelist to cuttana format
 
