@@ -20,6 +20,9 @@ COPY . /app
 # Build the project
 RUN make all
 
+# Build the edgelist converter
+RUN g++ -std=c++17 -O2 -o edgelist_to_cuttana edgelist_to_cuttana.cpp
+
 # Create output directory for partitioned files
 RUN mkdir -p partitioned_files
 
