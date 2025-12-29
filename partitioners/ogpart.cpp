@@ -541,9 +541,9 @@ public:
     void write_to_file()
     {
         string out_file =
-            dataset_name + ".cuttana" +std::to_string(sub_part_count) + ".P" +  std::to_string(part_count);
+            dataset_name + ".cuttana" +std::to_string(sub_part_count) + ".P" +  std::to_string(part_count) + ".tmp";
            // dataset_name + "." +std::to_string(sub_part_count) + ".P" +  std::to_string(part_count);
-        ofstream out_mapping("partitioned_files/" + out_file);
+        ofstream out_mapping("/data/" + out_file);
         for (int vid = 1; vid <= vertex_count; vid++)
         {
             out_mapping << sub_to_partition[vertex_to_sub_partition[vid]]
@@ -651,13 +651,13 @@ public:
         cout << "FinalVerify: " << metrics_output.str() << endl;
 
         // Write to file
-        string metrics_file = "" + dataset_name + ".cuttana" +std::to_string(sub_part_count) + ".P" +  std::to_string(part_count) + ".csv";
+        string metrics_file = "" + dataset_name + ".cuttana" +std::to_string(sub_part_count) + ".P" +  std::to_string(part_count) + ".tmp.csv";
 
-        ofstream metrics_out("partitioned_files/" + metrics_file);
+        ofstream metrics_out("/data/" + metrics_file);
         metrics_out << "Algorithm,Dataset,BalanceType,EdgeImbalance,VertexImbalance,RuntimeSec,EdgeCutPercent,ReplicationFactorPercent\n";
         metrics_out << metrics_output.str() << endl;
         metrics_out.close();
-        cout << "Metrics written to: partitioned_files/" << metrics_file << endl;
+        cout << "Metrics written to: /data/" << metrics_file << endl;
     }
 
     void graph_stats()

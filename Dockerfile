@@ -23,6 +23,9 @@ RUN make all
 # Build the edgelist converter
 RUN g++ -std=c++17 -O2 -o edgelist_to_cuttana edgelist_to_cuttana.cpp
 
+# Build the partition to original ID converter
+RUN g++ -std=c++17 -O2 -o partition_to_original partition_to_original.cpp
+
 # Create output directory for partitioned files
 RUN mkdir -p partitioned_files
 

@@ -32,13 +32,26 @@ int main(int argc, char* argv[]) {
     cout << "Reading edgelist from: " << input_file << endl;
 
     string line;
+    long long lines_read = 0;
+    long long skipped_lines = 0;
     while (getline(infile, line)) {
-        if (line.empty()) continue;
+        lines_read++;
+        if (lines_read % 1000000 == 0) {
+            cout << "  Read " << lines_read / 1000000 << "M lines, "
+                 << edge_count << " edges, "
+                 << adjacency_list.size() << " vertices so far..." << endl;
+        }
+
+        if (line.empty()) {
+            skipped_lines++;
+            continue;
+        }
 
         stringstream ss(line);
         long long src, dst;
 
         if (!(ss >> src >> dst)) {
+            skipped_lines++;
             continue;
         }
 
@@ -65,6 +78,19 @@ int main(int argc, char* argv[]) {
         }
     }
     adjacency_list = renumbered_adj;
+
+    // Write new2old mapping (line N = old_id for new_id N)
+    string mapping_file = output_file + ".new2old";
+    ofstream mapping_out(mapping_file);
+    if (!mapping_out.is_open()) {
+        cerr << "Error: Cannot create mapping file " << mapping_file << endl;
+        return 1;
+    }
+    for (auto& [old_id, new_id_val] : old_to_new) {
+        mapping_out << old_id << "\n";
+    }
+    mapping_out.close();
+    cout << "Wrote mapping to: " << mapping_file << endl;
 
     long long vertex_count = adjacency_list.size();
 
@@ -103,7 +129,14 @@ int main(int argc, char* argv[]) {
     outfile << vertex_count << " " << total_edges << "\n";
 
     // Write adjacency list for each vertex
+    cout << "Writing output file..." << endl;
+    long long write_progress = 0;
     for (auto& [vertex_id, neighbors] : adjacency_list) {
+        write_progress++;
+        if (write_progress % 1000000 == 0) {
+            cout << "  Written " << write_progress / 1000000 << "M / "
+                 << vertex_count / 1000000 << "M vertices..." << endl;
+        }
         outfile << vertex_id << " " << neighbors.size();
         for (long long neighbor : neighbors) {
             outfile << " " << neighbor;
@@ -112,6 +145,7 @@ int main(int argc, char* argv[]) {
     }
 
     outfile.close();
+    cout << "  Write complete." << endl;
 
     cout << "Conversion complete!" << endl;
     cout << "Output: " << output_file << endl;
