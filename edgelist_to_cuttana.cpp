@@ -1,13 +1,43 @@
 #include <iostream>
 #include <fstream>
-#include <sstream>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
 #include <algorithm>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 using namespace std;
+
+// Fast integer parsing from memory-mapped buffer
+template <typename T>
+inline T read_int(char*& ptr, char* end) {
+    // Skip non-digit characters (whitespace, newlines)
+    while (ptr < end && !isdigit(*ptr) && *ptr != '-') ptr++;
+    if (ptr >= end) return -1;
+
+    bool negative = false;
+    if (*ptr == '-') {
+        negative = true;
+        ptr++;
+    }
+
+    T num = 0;
+    while (ptr < end && isdigit(*ptr)) {
+        num = num * 10 + (*ptr - '0');
+        ptr++;
+    }
+    return negative ? -num : num;
+}
+
+// Skip to next line
+inline void skip_line(char*& ptr, char* end) {
+    while (ptr < end && *ptr != '\n') ptr++;
+    if (ptr < end) ptr++;  // skip the newline
+}
 
 int main(int argc, char* argv[]) {
     if (argc != 2) {
@@ -23,47 +53,60 @@ int main(int argc, char* argv[]) {
     unordered_map<long long, unordered_set<long long>> adjacency_list;
     long long edge_count = 0;
 
-    // Read the edgelist file
-    ifstream infile(input_file);
-    if (!infile.is_open()) {
+    // Memory-map the input file for fast reading
+    cout << "Reading edgelist from: " << input_file << endl;
+
+    int fd = open(input_file.c_str(), O_RDONLY);
+    if (fd == -1) {
         cerr << "Error: Cannot open file " << input_file << endl;
         return 1;
     }
 
-    cout << "Reading edgelist from: " << input_file << endl;
+    // Get file size
+    struct stat sb;
+    if (fstat(fd, &sb) == -1) {
+        cerr << "Error: Cannot get file size" << endl;
+        close(fd);
+        return 1;
+    }
+    size_t file_size = sb.st_size;
+    cout << "  File size: " << file_size / (1024 * 1024) << " MB" << endl;
 
-    string line;
-    long long lines_read = 0;
-    long long skipped_lines = 0;
-    while (getline(infile, line)) {
-        lines_read++;
-        if (lines_read % 1000000 == 0) {
-            cout << "  Read " << lines_read / 1000000 << "M lines, "
-                 << edge_count << " edges, "
-                 << adjacency_list.size() << " vertices so far..." << endl;
-        }
+    // Memory-map the file
+    char* data = (char*)mmap(nullptr, file_size, PROT_READ, MAP_PRIVATE, fd, 0);
+    if (data == MAP_FAILED) {
+        cerr << "Error: Cannot memory-map file" << endl;
+        close(fd);
+        return 1;
+    }
 
-        if (line.empty()) {
-            skipped_lines++;
-            continue;
-        }
+    char* ptr = data;
+    char* end = data + file_size;
 
-        stringstream ss(line);
-        long long src, dst;
-
-        if (!(ss >> src >> dst)) {
-            skipped_lines++;
-            continue;
-        }
+    long long edges_read = 0;
+    while (ptr < end) {
+        long long src = read_int<long long>(ptr, end);
+        if (ptr >= end) break;
+        long long dst = read_int<long long>(ptr, end);
+        if (src < 0 || dst < 0) break;  // end of valid data
 
         // Add both directions (undirected graph)
         adjacency_list[src].insert(dst);
         adjacency_list[dst].insert(src);
         edge_count++;
+        edges_read++;
+
+        if (edges_read % 1000000 == 0) {
+            cout << "  Read " << edges_read / 1000000 << "M edges, "
+                 << adjacency_list.size() << " vertices so far..." << endl;
+        }
     }
-    infile.close();
-    cout << "  Finished reading: " << lines_read << " lines total, "
-         << skipped_lines << " skipped, "
+
+    // Cleanup mmap
+    munmap(data, file_size);
+    close(fd);
+
+    cout << "  Finished reading: " << edge_count << " edges, "
          << adjacency_list.size() << " vertices" << endl;
 
     // Collect and sort old vertex IDs
