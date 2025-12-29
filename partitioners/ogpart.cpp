@@ -541,12 +541,12 @@ public:
     void write_to_file()
     {
         string out_file =
-            "lookup_" + dataset_name + std::to_string(part_count) + "_" + std::to_string(sub_part_count) + ".txt";
+            dataset_name + ".cuttana" +std::to_string(sub_part_count) + ".P" +  std::to_string(part_count);
+           // dataset_name + "." +std::to_string(sub_part_count) + ".P" +  std::to_string(part_count);
         ofstream out_mapping("partitioned_files/" + out_file);
         for (int vid = 1; vid <= vertex_count; vid++)
         {
-            out_mapping << vid << ","
-                        << sub_to_partition[vertex_to_sub_partition[vid]]
+            out_mapping << sub_to_partition[vertex_to_sub_partition[vid]]
                         << "\n";
         }
         out_mapping.close();
@@ -645,13 +645,14 @@ public:
 
         // Create metrics output string
         stringstream metrics_output;
-        metrics_output << fixed << setprecision(2) << "CUTTANA," << dataset_name << "," << (result.is_vertex_balanced ? "VB" : "EB") << "," << ((double)(mx_edge) / ((double)edge_count / part_count)) << "," << (double)(mx) / ((double)vertex_count / part_count) << "," << (int)(result.program_timer.get_total_time() / 1e9) << "," << ((double)edge_cut / edge_count * 100.0) << "," << (sum_rep_fac * 1.0 / (vertex_count * result.part_count)) * 100.0;
+        metrics_output << fixed << setprecision(2) << "CUTTANA," << dataset_name << "," << (result.is_vertex_balanced ? "VB" : "EB") << "," << ((double)(mx_edge) / ((double)edge_count / part_count)) << "," << (double)(mx) / ((double)vertex_count / part_count) << "," << (int)(result.program_timer.get_total_time() / 1e9) << "," << ((double)edge_cut / edge_count) << "," << (sum_rep_fac * 1.0 / (vertex_count * result.part_count)) * 100.0;
 
         // Print to console
         cout << "FinalVerify: " << metrics_output.str() << endl;
 
         // Write to file
-        string metrics_file = "metrics_" + dataset_name + std::to_string(part_count) + "_" + std::to_string(sub_part_count) + ".csv";
+        string metrics_file = "" + dataset_name + ".cuttana" +std::to_string(sub_part_count) + ".P" +  std::to_string(part_count) + ".csv";
+
         ofstream metrics_out("partitioned_files/" + metrics_file);
         metrics_out << "Algorithm,Dataset,BalanceType,EdgeImbalance,VertexImbalance,RuntimeSec,EdgeCutPercent,ReplicationFactorPercent\n";
         metrics_out << metrics_output.str() << endl;

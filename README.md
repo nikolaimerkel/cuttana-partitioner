@@ -114,14 +114,13 @@ Basic partitioning
 docker run --rm cuttana ./ogpart -d examples/emailEnron.txt -p 4 -subp 256 -b 1.05 -vb 1
 ```
 
-With own, for examples
-```
+With own, for examples. Input directory contains input graph, output directory will contained vid2 pid file 
+```sh
 docker run --rm \
   -v /Users/nikolaimerkel/development/TUB/partitioning/cuttana-partitioner/input:/data \
   -v /Users/nikolaimerkel/development/TUB/partitioning/cuttana-partitioner/output:/app/partitioned_files \
   cuttana ./ogpart -d /data/emailEnron.txt -p 4 -subp 4 -b 1.05 -vb 1
 ```
-
 
 ```
 docker run --rm \
@@ -130,8 +129,6 @@ docker run --rm \
   cuttana ./ogpart -d /data/test100.txt.cuttana -p 4 -subp 1 -b 1.05 -vb 1
 ```
 
-
-random_graph_undirected.txt.cuttana
 
 
 
@@ -146,6 +143,7 @@ docker run --rm cuttana bash exp.sh exp.json
 ```
 
 ### Create a random edgelist - n
+Creates a reandom edgelist for testing purposes
 ```
 docker run --rm -v $(pwd)/input:/data cuttana python3 generate_edgelist.py 1000 5000 -o /data/random_graph_undirec.txt
 docker run --rm -v $(pwd)/input:/data cuttana python3 generate_edgelist.py 1000 5000 --directed -o /data/random_directed.txt
@@ -153,16 +151,18 @@ docker run --rm -v $(pwd)/input:/data cuttana python3 generate_edgelist.py 1000 
 ```
 
 ### Convert edgelist to cuttana format
-
+The ids will be kept the same. 
 ```
 docker run --rm -v /Users/nikolaimerkel/development/TUB/partitioning/cuttana-partitioner/input:/data cuttana ./edgelist_to_cuttana /data/test100.txt 
 docker run --rm -v /Users/nikolaimerkel/development/TUB/partitioning/cuttana-partitioner/input:/data cuttana ./edgelist_to_cuttana /data/random_graph_undirec.txt 
 docker run --rm -v /Users/nikolaimerkel/development/TUB/partitioning/cuttana-partitioner/input:/data cuttana ./edgelist_to_cuttana /data/random_directed.txt 
 docker run --rm -v /Users/nikolaimerkel/development/TUB/partitioning/cuttana-partitioner/input:/data cuttana ./edgelist_to_cuttana /data/random_zero.txt 
 
-
 ```
 
+### Issues: 
+- vertices with zero degree let the program fail
+- the name of input graph matters, it will be checked if `directed` in graph 
 
 
 
