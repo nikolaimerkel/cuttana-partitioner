@@ -541,8 +541,12 @@ public:
     void write_to_file()
     {
         string out_file =
-            dataset_name + ".cuttana" +std::to_string(sub_part_count) + ".P" +  std::to_string(part_count) + ".tmp";
-           // dataset_name + "." +std::to_string(sub_part_count) + ".P" +  std::to_string(part_count);
+        dataset_name + ".cuttana" +std::to_string(sub_part_count) + ".P" +  std::to_string(part_count) + ".tmp";
+        // dataset_name + "." +std::to_string(sub_part_count) + ".P" +  std::to_string(part_count);
+        // Write timing CSV
+        ofstream time_out("/data/" + out_file + ".csv");
+        time_out << "RuntimeSec\n" << (int)(result.program_timer.get_total_time() / 1e9) << endl;
+        time_out.close();
         ofstream out_mapping("/data/" + out_file);
         for (int vid = 1; vid <= vertex_count; vid++)
         {
@@ -550,6 +554,7 @@ public:
                         << "\n";
         }
         out_mapping.close();
+
     }
 
     void verify()
