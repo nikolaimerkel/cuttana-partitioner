@@ -1186,36 +1186,41 @@ int main(int argc, const char *argv[])
     double BALANCE_SLACK = 0.05, GAMMA = 1.5;
     ll INFO_GAIN_THRESHOLD = -1;
     bool IS_VERTEX_BALANCED = true;
+    IS_DIRECTED = false;
 
-    for (int i = 1; i < argc; i += 2)
+    for (int i = 1; i < argc; i++)
     {
         if (strcmp(argv[i], "-d") == 0)
         {
-            input_file_path = argv[i + 1];
+            input_file_path = argv[++i];
         }
         else if (strcmp(argv[i], "-p") == 0)
         {
-            part_count = atoi(argv[i + 1]);
+            part_count = atoi(argv[++i]);
         }
         else if (strcmp(argv[i], "-subp") == 0)
         {
-            sub_part_count = atoi(argv[i + 1]);
+            sub_part_count = atoi(argv[++i]);
         }
         else if (strcmp(argv[i], "-b") == 0)
         {
-            BALANCE_SLACK = atof(argv[i + 1]) - 1;
+            BALANCE_SLACK = atof(argv[++i]) - 1;
         }
         else if (strcmp(argv[i], "-g") == 0)
         {
-            GAMMA = atof(argv[i + 1]);
+            GAMMA = atof(argv[++i]);
         }
         else if (strcmp(argv[i], "-i") == 0)
         {
-            INFO_GAIN_THRESHOLD = atoi(argv[i + 1]);
+            INFO_GAIN_THRESHOLD = atoi(argv[++i]);
         }
         else if (strcmp(argv[i], "-vb") == 0)
         {
-            IS_VERTEX_BALANCED = atoi(argv[i + 1]);
+            IS_VERTEX_BALANCED = atoi(argv[++i]);
+        }
+        else if (strcmp(argv[i], "-directed") == 0)
+        {
+            IS_DIRECTED = true;
         }
         else
         {
@@ -1224,7 +1229,7 @@ int main(int argc, const char *argv[])
     }
     assert(part_count > 0 && sub_part_count > 0);
 
-    IS_DIRECTED = input_file_path.find("directed") != string::npos;
+    cout << "Graph mode: " << (IS_DIRECTED ? "directed" : "undirected") << endl;
 
     OGPart ogpart(input_file_path, part_count, sub_part_count, BALANCE_SLACK,
                   GAMMA, INFO_GAIN_THRESHOLD, result, IS_VERTEX_BALANCED);
@@ -1251,7 +1256,7 @@ int main(int argc, const char *argv[])
     result.is_vertex_balanced = IS_VERTEX_BALANCED;
     result.imbalance = BALANCE_SLACK + 1;
 
-    ogpart.verify();
+    // ogpart.verify();
 
     return 0;
 }

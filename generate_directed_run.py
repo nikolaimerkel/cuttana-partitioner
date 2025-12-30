@@ -4,12 +4,11 @@ import sys
 
 # List of graph files (without path prefix)
 GRAPHS = [
-   # "random_graph_undirec.txt",
-   "directed.edgelist"
+    "directed.edgelist",
 ]
 
 # List of partition counts to run
-PARTITION_COUNTS = [2, 4, 8, 16, 32]
+PARTITION_COUNTS = [2,4]
 
 # Fixed parameters
 SUBP = 256
@@ -18,18 +17,18 @@ VERTEX_BALANCE = 1
 
 
 def cmd_convert(graph: str, data_path: str) -> str:
-    return f"docker run --rm -v {data_path}:/data cuttana ./edgelist_to_cuttana /data/{graph}"
+    return f"docker run --rm -v {data_path}:/data cuttana ./directed_edgelist_to_directed_cuttana /data/{graph}"
 
 
 def cmd_partition(graph: str, partitions: int, data_path: str) -> str:
     return (
         f"docker run --rm -v {data_path}:/data cuttana "
-        f"./ogpart -d /data/{graph}.cuttana -p {partitions} -subp {SUBP} -b {BALANCE} -vb {VERTEX_BALANCE}"
+        f"./ogpart -d /data/{graph}.directed.cuttana -p {partitions} -subp {SUBP} -b {BALANCE} -vb {VERTEX_BALANCE} -directed"
     )
 
 
 def cmd_to_original(graph: str, partitions: int, data_path: str) -> str:
-    base = f"/data/{graph}.cuttana"
+    base = f"/data/{graph}.directed.cuttana"
     new2old = f"{base}.new2old"
     partition_in = f"{base}.cuttana{SUBP}.P{partitions}.tmp"
     partition_out = f"{base}.cuttana{SUBP}.P{partitions}"
@@ -57,13 +56,13 @@ def main():
             commands.append(cmd_partition(graph, p, data_path))
             commands.append(cmd_to_original(graph, p, data_path))
 
-    # Write to run.sh
-    with open("run.sh", "w") as f:
+    # Write to run_directed.sh
+    with open("run_directed.sh", "w") as f:
         f.write("#!/bin/bash\nset -e\n\n")
         for cmd in commands:
             f.write(cmd + "\n")
 
-    print(f"Generated run.sh with {len(commands)} commands")
+    print(f"Generated run_directed.sh with {len(commands)} commands")
 
 
 if __name__ == "__main__":
