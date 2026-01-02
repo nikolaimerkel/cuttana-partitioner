@@ -120,15 +120,61 @@ docker run --rm -v $(pwd)/input:/data cuttana python3 generate_edgelist.py 1000 
 
 #### create commands 
 create commands given the input directory where the edgelist is stored. 
-```
-python3 generate_run.py /Users/nikolaimerkel/development/TUB/partitioning/cuttana-partitioner/input
-```
-Then `./run.sh`
 
-creates stuff like this 
-docker run --rm -v $(pwd)/input:/data cuttana ./edgelist_to_cuttana /data/random_graph_undirec.txt 
-docker run --rm -v $(pwd)/input:/data cuttana ./ogpart -d /data/random_graph_undirec.txt.cuttana -p 4 -subp 256 -b 1.05 -vb 1
-docker run --rm -v $(pwd)/input:/data cuttana ./partition_to_original /data/random_graph_undirec.txt.cuttana.new2old /data/random_graph_undirec.txt.cuttana.cuttana256.P4.tmp /data/random_graph_undirec.txt.cuttana.cuttana256.P4
+
+
+python3 generate_directed_graph.py 1000 5000 input/directed.edgelist
+
+###
+Input edge list: 
+
+directed
+python3 generate_directed_run.py /Users/nikolaimerkel/development/TUB/partitioning/cuttana-partitioner/input
+python3 generate_directed_run.py /data/sdb/nikolai/gnn-partitioner/edgelists
+
+undirected: 
+
+python3 generate_run.py /Users/nikolaimerkel/development/TUB/partitioning/cuttana-partitioner/input
+python3 generate_run.py /data/sdb/nikolai/gnn-partitioner/edgelists
+
+
+quality 
+echo ""
+echo "metis arxiv"
+python -m scripts.compute_partition_metrics_extern_no_cpp -graph /mnt/data/dgl/ogbn-arxiv.dgl -vid2pid /mnt/data/partitioned/ogbn-arxiv.metis.P4.vid2pid  -num_parts 4 -partitioner metis -graph_name ogbn-arxiv
+
+echo ""
+echo "cuttana arxiv"
+python -m scripts.compute_partition_metrics_extern_no_cpp -graph /mnt/data/dgl/ogbn-arxiv.dgl -vid2pid /mnt/data/edgelists/ogbn-arxiv.directed.cuttana.cuttana256.P4  -num_parts 4 -partitioner cuttana -graph_name ogbn-arxiv
+
+
+
+echo ""
+echo "metis papers"
+python -m scripts.compute_partition_metrics_extern_no_cpp -graph /mnt/data/dgl/ogbn-papers100M.dgl -vid2pid /mnt/data/partitioned/ogbn-papers100M.metis.P4.vid2pid  -num_parts 4 -partitioner metis -graph_name ogbn-papers100M
+
+echo ""
+echo "cuttana papers"
+python -m scripts.compute_partition_metrics_extern_no_cpp -graph /mnt/data/dgl/ogbn-papers100M.dgl -vid2pid /mnt/data/edgelists/ogbn-papers100M.directed.cuttana.cuttana256.P4  -num_parts 4 -partitioner cuttana -graph_name ogbn-papers100M
+
+
+echo ""
+echo "metis reddit"
+python -m scripts.compute_partition_metrics_extern_no_cpp -graph /mnt/data/dgl/reddit.dgl -vid2pid /mnt/data/partitioned/reddit.metis.P4.vid2pid  -num_parts 4 -partitioner metis -graph_name reddit
+
+echo ""
+echo "cuttana reddit"
+python -m scripts.compute_partition_metrics_extern_no_cpp -graph /mnt/data/dgl/reddit.dgl -vid2pid /mnt/data/edgelists/reddit.directed.cuttana.cuttana256.P4  -num_parts 4 -partitioner cuttana -graph_name reddit
+
+echo ""
+echo "metis products"
+python -m scripts.compute_partition_metrics_extern_no_cpp -graph /mnt/data/dgl/ogbn-products.dgl -vid2pid /mnt/data/partitioned/ogbn-products.metis.P4.vid2pid  -num_parts 4 -partitioner metis -graph_name ogbn-products
+
+echo ""
+echo "cuttana products"
+python -m scripts.compute_partition_metrics_extern_no_cpp -graph /mnt/data/dgl/ogbn-products.dgl -vid2pid /mnt/data/edgelists/ogbn-products.directed.cuttana.cuttana256.P4  -num_parts 4 -partitioner cuttana -graph_name ogbn-products
+
+
 
 
 
