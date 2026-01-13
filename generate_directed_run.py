@@ -4,11 +4,14 @@ import sys
 
 # List of graph files (without path prefix)
 GRAPHS = [
-    "directed.edgelist",
+    "ogbn-papers100M",
+    "ogbn-arxiv",
+    "ogbn-products",
+    "reddit",
 ]
 
 # List of partition counts to run
-PARTITION_COUNTS = [2,4]
+PARTITION_COUNTS = [2,4,8,16,32]
 
 # Fixed parameters
 SUBP = 256
@@ -31,7 +34,7 @@ def cmd_to_original(graph: str, partitions: int, data_path: str) -> str:
     base = f"/data/{graph}.directed.cuttana"
     new2old = f"{base}.new2old"
     partition_in = f"{base}.cuttana{SUBP}.P{partitions}.tmp"
-    partition_out = f"{base}.cuttana{SUBP}.P{partitions}"
+    partition_out = f"{base}.cuttana{SUBP}.P{partitions}.vid2pid"
     return (
         f"docker run --rm -v {data_path}:/data cuttana "
         f"./partition_to_original {new2old} {partition_in} {partition_out}"
@@ -49,6 +52,7 @@ def main():
 
     for graph in GRAPHS:
         # Convert once per graph
+
         commands.append(cmd_convert(graph, data_path))
 
         # Partition and convert back for each partition count
